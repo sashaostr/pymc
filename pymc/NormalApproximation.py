@@ -155,7 +155,9 @@ class MAP(Model):
     :SeeAlso: Model, EM, Sampler, scipy.optimize
     """
 
-    def __init__(self, input=[], eps=.001, diff_order=5, verbose=-1):
+    def __init__(self, input=()
+
+, eps=.001, diff_order=5, verbose=-1):
         if not scipy_imported:
             raise ImportError(
                 'Scipy must be installed to use NormApprox and MAP.')
@@ -367,12 +369,17 @@ class MAP(Model):
         lnL = sum([x.logp for x in self.observed_stochastics]
                   )  # log-likelihood of observed stochastics
         self.lnL = lnL
-        self.AIC = 2. * (self.len - lnL)  # 2k - 2 ln(L)
-        self.AICc = self.AIC + ((2 * self.len * (self.len + 1)) / float(self.data_len - self.len - 1))
+        try:
+            self.AIC = 2. * (self.len - lnL)  # 2k - 2 ln(L)
+            self.AICc = self.AIC + ((2 * self.len * (self.len + 1)) / float(self.data_len - self.len - 1))
+        except Exception as e:
+            print('Cannot calculate AIC:', e)
+            self.AICc = self.AIC = -Inf
         try:
             self.BIC = self.len * log(
                 self.data_len) - 2. * lnL  # k ln(n) - 2 ln(L)
-        except FloatingPointError:
+        except FloatingPointError as e:
+            print('Cannot calculate BIC:', e)
             self.BIC = -Inf
 
         self.fitted = True
@@ -562,7 +569,9 @@ class NormApprox(MAP, Sampler):
     :SeeAlso: Model, EM, Sampler, scipy.optimize
     """
 
-    def __init__(self, input=[], db='ram', eps=.001, diff_order=5, **kwds):
+    def __init__(self, input=()
+
+, db='ram', eps=.001, diff_order=5, **kwds):
         if not scipy_imported:
             raise ImportError(
                 'Scipy must be installed to use NormApprox and MAP.')

@@ -57,7 +57,9 @@ class MCMC(Sampler):
     :SeeAlso: Model, Sampler, StepMethod.
     """
 
-    def __init__(self, input=[], db='ram',
+    def __init__(self, input=()
+
+, db='ram',
                  name='MCMC', calc_deviance=True, **kwds):
         """Initialize an MCMC instance.
 
@@ -138,8 +140,7 @@ class MCMC(Sampler):
             for sm in step_method:
                 self.remove_step_method(sm)
 
-    def assign_step_methods(
-            self, verbose=-1, draw_from_prior_when_possible=True):
+    def assign_step_methods(self, verbose=-1, draw_from_prior_when_possible=True):
         """
         Make sure every stochastic variable has a step method. If not,
         assign a step method from the registry.
@@ -364,8 +365,10 @@ class MCMC(Sampler):
             tuning_count += step_method.tune(verbose=self.verbose)
             if verbose > 1:
                 print_(
-                    '\t\tTuning step method %s, returned %i\n' %i
-                    (step_method._id, tuning_count))
+                    '\t\tTuning step method %s, returned %i\n' % (
+                        step_method._id, tuning_count
+                    )
+                )
                 sys.stdout.flush()
 
         if self._burn_till_tuned:

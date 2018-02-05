@@ -3140,7 +3140,7 @@ cf2py threadsafe
 
       IMPLICIT NONE
       INTEGER n,np,i
-      INTEGER x(n)
+      INTEGER*8 x(n)
       DOUBLE PRECISION p(np), p_tmp
       DOUBLE PRECISION like
       DOUBLE PRECISION infinity
@@ -4221,22 +4221,32 @@ cf2py threadsafe
         if (na .NE. 1) atmp = alpha(i)
         if (nb .NE. 1) btmp = beta(i)
         if (nn .NE. 1) ntmp = n(i)
-        if ((atmp.LE.0.0).OR.(btmp.LE.0.0).OR.(ntmp.LE.0)) then
+        if (((atmp.LT.0.0).OR.(btmp.LT.0.0))) then
           like = -infinity
           RETURN
-        endif
-        if (x(i) .LT. 0) then
+        else if (((atmp.LE.0.0).AND.(btmp.LE.0.0)).OR.(ntmp.LE.0)) then
           like = -infinity
           RETURN
+        else if (x(i) .LT. 0) then
+          like = -infinity
+          RETURN
+        else if (x(i) .GT. ntmp) then
+          like = -infinity
+          RETURN
+        else if ((atmp.LE.0.0).AND.(x(i).LE.0)) then
+            like = like + 0.0
+        else if ((btmp.LE.0.0).AND.(x(i).GE.n(i))) then
+            like = like + 0.0
+        else
+          like =like + gammln(atmp+btmp)
+          like =like - gammln(atmp) - gammln(btmp)
+
+          like =like + gammln(ntmp+one)
+          like =like - gammln(x(i)+one) - gammln(ntmp-x(i)+one)
+
+          like =like + gammln(atmp+x(i)) + gammln(ntmp+btmp-x(i))
+          like =like - gammln(atmp+btmp+ntmp)
         endif
-        like =like + gammln(atmp+btmp)
-        like =like - gammln(atmp) - gammln(btmp)
-
-        like =like + gammln(ntmp+one)
-        like =like - gammln(x(i)+one) - gammln(ntmp-x(i)+one)
-
-        like =like + gammln(atmp+x(i)) + gammln(ntmp+btmp-x(i))
-        like =like - gammln(atmp+btmp+ntmp)
 
       enddo
 

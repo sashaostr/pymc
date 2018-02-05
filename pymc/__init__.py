@@ -7,13 +7,13 @@ pymc only requires NumPy. All other dependencies such as matplotlib, SciPy, pyta
 
 """
 
-__version__ = '2.3.6'
+__version__ = '2.3.7'
 
 try:
     import numpy
-except ImportError:
-    raise ImportError(
-        'NumPy does not seem to be installed. Please see the user guide.')
+except ImportError as ie:
+    print(ie,
+        '\nNumPy does not seem to be installed. Please see the user guide.')
 
 # Core modules
 from .threadpool import *

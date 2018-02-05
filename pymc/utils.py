@@ -45,9 +45,8 @@ symmetrize = flib.symmetrize
 PY3 = sys.version_info >= (3, 3)
 
 def get_signature_py3(func):
-    sig = inspect.signature(func)
-    defaults = tuple(p.default for p in sig.parameters.values() if p.default is not inspect._empty)
-    args = [k for k in sig.parameters.keys() if k not in ('args', 'kwds')]
+    (args, varargs, varkw, defaults, kwonlyargs, kwonlydefaults,
+        annotations) = inspect.getfullargspec(func)
     return args, defaults
     
 def get_signature_py2(func):
@@ -59,6 +58,11 @@ if PY3:
     get_signature = get_signature_py3
 else:
     get_signature = get_signature_py2
+    
+def decode(x):
+    if PY3:
+        return x.decode()
+    return x
 
 def value(a):
     """
@@ -451,7 +455,9 @@ def normcdf(x, log=False):
     y = np.atleast_1d(x).copy()
     flib.normcdf(y)
     if log:
-        return np.where(y > 0, np.log(y), -np.inf)
+        if (y>0).all():
+            return np.log(y)
+        return -np.inf
     return y
 
 
@@ -847,7 +853,7 @@ def getInput():
 
         # select(rlist, wlist, xlist, timeout)
         while len(select.select([sock], [], [], 0.1)[0]) > 0:
-            input += os.read(sock, 4096)
+            input += decode(os.read(sock, 4096))
 
     return input
 

@@ -29,9 +29,8 @@ __docformat__ = 'reStructuredText'
 
 from . import flib, utils
 import numpy as np
-# from scipy.stats.kde import gaussian_kde
 import scipy.stats as stats
-gaussian_kde = stats.kde
+gaussian_kde = stats.gaussian_kde
 from .Node import ZeroProbability
 from .PyMCObjects import Stochastic, Deterministic
 from .CommonDeterministics import Lambda
@@ -187,11 +186,6 @@ def new_dist_class(*new_class_args):
                 'verbose']
             arg_vals = [
                 None, parents, None, False, None, True, True, None, False, None, -1]
-            if 'isdata' in kwds:
-                warnings.warn(
-                    '"isdata" is deprecated, please use "observed" instead.')
-                kwds['observed'] = kwds['isdata']
-                pass
 
             # No size argument allowed for multivariate distributions.
             if mv:
@@ -865,7 +859,8 @@ def rbinomial(n, p, size=None):
     """
     Random binomial variates.
     """
-    # return np.random.binomial(n,p,size)
+    if not size:
+        size = None
     return np.random.binomial(np.ravel(n), np.ravel(p), size)
 
 
@@ -2106,8 +2101,8 @@ def negative_binomial_like(x, mu, alpha):
     .. note::
       - :math:`E[x]=\mu`
       - In Wikipedia's parameterization,
-        :math:`r=\alpha`
-        :math:`p=\alpha/(\mu+\alpha)`
+        :math:`r=\alpha`,
+        :math:`p=\mu/(\mu+\alpha)`,
         :math:`\mu=rp/(1-p)`
 
     """
@@ -2712,10 +2707,10 @@ def discrete_uniform_like(x, lower, upper):
     Discrete uniform log-likelihood.
 
     .. math::
-        f(x \mid lower, upper) = \frac{1}{upper-lower}
+        f(x \mid lower, upper) = \frac{1}{upper-lower+1}
 
     :Parameters:
-      - `x` : [int] :math:`lower \leq x \leq upper`
+      - `x` : [int] :math:`x \in \{lower, lower+1, \ldots, upper-1, upper\}`
       - `lower` : Lower limit.
       - `upper` : Upper limit (upper > lower).
 
