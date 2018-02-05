@@ -12,3 +12,4 @@ testresults
 *.py.bak
 .DS_Store
 *cpython*
+.idea
